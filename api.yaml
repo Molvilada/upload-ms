@@ -1,0 +1,159 @@
+#Test with: http://editor.swagger.io/
+
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Microservice for upload images
+  description: Ruby + MySQL
+  license:
+    name: Software Architecture, 2019-I
+host: 192.168.99.102:3001
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /images:
+    get:
+      summary: Returns all images
+      operationId: getAllImages
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/ImagesList'
+        '406':
+          description: Not Acceptable (Invalid Params)
+        '500':
+          description: Internal Server Error
+    
+  /images/upload:
+    post:
+      summary: Creates a new image
+      operationId: createImage
+      parameters:
+        - name: image
+          in: body
+          required: true
+          description: Image Object
+          schema:
+            $ref: '#/definitions/ImageInput'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorInput'
+        '500':
+          description: Internal Server Error
+
+  /image/{id}:
+    get:
+      summary: Returns a image with the given id
+      operationId: getImageById
+      parameters:
+        - name: id
+          in: path
+          description: The id of the image to be returned
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/ImageInformation'
+        '404':
+          description: Not Found
+        '406':
+            description: Not Acceptable (Invalid Params)
+        '500':
+          description: unexpected error
+
+    delete:
+      summary: Deletes a image with the given id
+      operationId: deleteImage
+      parameters:
+        - name: id
+          in: path
+          description: The id of the image to be deleted
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/ImageDeleted'
+        '404':
+          description: Not Found
+        '406':
+            description: Not Acceptable (Invalid Params)
+        '500':
+          description: unexpected error
+
+definitions:
+
+  # Courses
+  Image:
+    type: object
+    properties:
+      id:
+        type: integer
+      image:
+        type: string
+      image_base64:
+        type: string
+      privacy:
+        type: boolean
+      id_user:
+        type: string
+        
+  ImageInput:
+    type: object
+    properties:
+      image:
+        type: string
+      privacy:
+        type: boolean
+      id_user:
+        type: string
+
+  ImageInformation:
+    type: object
+    properties:
+      id:
+        type: integer
+      image_base64:
+        type: string
+
+  ImagesList:
+    type: object
+    required:
+      - total
+      - list
+    properties:
+      total:
+        type: number
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Image'
+          
+  ImageDeleted:
+    type: object
+    properties:
+      id:
+        type: integer
+
+# Errors
+        
+  ErrorInput:
+    type: object
+    required:
+      - message
+    properties:
+      error:
+        type: string
+
